@@ -3,924 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Календарь передержки животных</title>
+    <title>🐾 Календарь передержки</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 2em;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .nav-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .nav-btn:hover {
-            background: #5a6fd6;
-            transform: scale(1.05);
-        }
-
-        .current-month {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            min-width: 200px;
-            text-align: center;
-        }
-
-        .earnings {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #11998e;
-            background: #f0f9f8;
-            padding: 8px 16px;
-            border-radius: 10px;
-            border: 2px solid #11998e;
-        }
-
-        .add-btn {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .add-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
-        }
-
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-bottom: 10px;
-        }
-
-        .weekday {
-            text-align: center;
-            font-weight: bold;
-            color: #666;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 8px;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-
-        .day {
-            min-height: 100px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 8px;
-            background: #fafafa;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .day:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .day.other-month {
-            background: #f5f5f5;
-            color: #aaa;
-        }
-
-        .day.today {
-            border: 2px solid #667eea;
-            background: #f0f4ff;
-        }
-
-        .day-number {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .bookings-container {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            margin-top: 5px;
-        }
-
-        .booking-line {
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #000000;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-shadow: none;
-        }
-
-        .booking-line:hover {
-            transform: scale(1.02);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .booking-line.start {
-            border-radius: 4px 0 0 4px;
-            margin-right: -8px;
-        }
-
-        .booking-line.end {
-            border-radius: 0 4px 4px 0;
-            margin-left: -8px;
-        }
-
-        .booking-line.middle {
-            border-radius: 0;
-            margin-left: -8px;
-            margin-right: -8px;
-        }
-
-        .booking-line.single {
-            border-radius: 4px;
-        }
-
-        /* Модальное окно */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            visibility: hidden;
-            transition: background 0.3s ease, visibility 0.3s ease;
-        }
-
-        .modal.active {
-            visibility: visible;
-            background: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 700px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            transform: translateY(-30px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .modal.active .modal-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-header h2 {
-            color: #333;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-            transition: color 0.3s;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .color-picker-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .color-picker-container input[type="color"] {
-            width: 60px;
-            height: 45px;
-            padding: 0;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .color-presets {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .color-preset {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .color-preset:hover {
-            transform: scale(1.2);
-        }
-
-        .color-preset.selected {
-            border-color: #333;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .submit-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        /* Детали бронирования */
-        .booking-details {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .delete-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .delete-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(255, 65, 108, 0.4);
-        }
-
-        /* Легенда */
-        .legend {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 15px;
-        }
-
-        .legend h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .legend-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .legend-item:hover {
-            transform: scale(1.05);
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-
-        .legend-text {
-            font-size: 14px;
-            color: #333;
-        }
-
-        .legend-dates {
-            font-size: 12px;
-            color: #666;
-        }
-
-        /* Стили для комментариев */
-        .field-comment {
-            font-size: 12px;
-            color: #667eea;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .day {
-                min-height: 70px;
-                padding: 5px;
-            }
-
-            .day-number {
-                font-size: 12px;
-            }
-
-            .booking-line {
-                font-size: 9px;
-                padding: 2px 4px;
-            }
-
-            .weekday {
-                font-size: 12px;
-                padding: 5px;
-            }
-
-            .header {
-                flex-direction: column;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .legend h3 {
-                margin-bottom: 15px;
-                color: #333;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            #archiveToggle {
-                font-size: 14px;
-                padding: 8px 15px;
-            }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 15px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 20px; }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; font-size: 1.8em; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .nav-buttons { display: flex; align-items: center; gap: 10px; }
+        .nav-btn { background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .nav-btn:hover { background: #5a6fd6; }
+        .current-month { font-size: 1.2em; font-weight: bold; color: #333; min-width: 150px; text-align: center; }
+        .earnings { font-size: 1.1em; font-weight: bold; color: #11998e; background: #f0f9f8; padding: 8px 12px; border-radius: 10px; border: 2px solid #11998e; }
+        .add-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px; }
+        .weekday { text-align: center; font-weight: bold; color: #666; padding: 8px; background: #f0f0f0; border-radius: 8px; font-size: 12px; }
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .day { min-height: 90px; border: 1px solid #e0e0e0; border-radius: 10px; padding: 5px; background: #fafafa; position: relative; transition: 0.2s; }
+        .day.other-month { background: #f5f5f5; color: #aaa; }
+        .day.today { border: 2px solid #667eea; background: #f0f4ff; }
+        .day-number { font-weight: bold; font-size: 12px; margin-bottom: 5px; }
+        .bookings-container { display: flex; flex-direction: column; gap: 2px; }
+        .booking-line { padding: 2px 5px; border-radius: 4px; font-size: 10px; color: black; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        
+        /* Модалка */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; position: relative; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .submit-btn { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .delete-btn { width: 100%; padding: 10px; background: #ff416c; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+        .color-presets { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+        .color-preset { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ddd; }
+        
+        .legend { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 15px; }
+        .legend-items { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; background: white; padding: 5px 10px; border-radius: 8px; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        .field-comment { font-size: 11px; color: #667eea; margin-top: 3px; }
+
+        @media (max-width: 600px) {
+            .day { min-height: 60px; }
+            .day-number { font-size: 10px; }
+            .booking-line { font-size: 9px; }
+            .current-month { min-width: 100px; font-size: 1em; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🐾 Календарь передержки животных</h1>
-        
-        <div class="header">
-            <div class="nav-buttons">
-                <button class="nav-btn" onclick="prevMonth()">← Назад</button>
-                <span class="current-month" id="currentMonth"></span>
-                <button class="nav-btn" onclick="nextMonth()">Вперёд →</button>
-            </div>
-            <div class="earnings">💰 <span id="monthEarnings">0</span> руб.</div>
-            <button class="add-btn" onclick="openModal()">+ Добавить бронь</button>
-        </div>
 
-        <div class="weekdays">
-            <div class="weekday">Пн</div>
-            <div class="weekday">Вт</div>
-            <div class="weekday">Ср</div>
-            <div class="weekday">Чт</div>
-            <div class="weekday">Пт</div>
-            <div class="weekday">Сб</div>
-            <div class="weekday">Вс</div>
+<div class="container">
+    <h1>🐾 Передержка</h1>
+    <div class="header">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="changeMonth(-1)">←</button>
+            <span class="current-month" id="monthLabel"></span>
+            <button class="nav-btn" onclick="changeMonth(1)">→</button>
         </div>
-
-        <div class="calendar" id="calendar"></div>
-
-        <div class="legend" id="legend">
-            <h3>📋 Активные брони</h3>
-            <div class="legend-items" id="legendItems"></div>
-        </div>
+        <div class="earnings">💰 <span id="totalEarnings">0</span> р.</div>
+        <button class="add-btn" onclick="openAddModal()">+ Бронь</button>
     </div>
 
-    <!-- Модальное окно добавления -->
-    <div class="modal" id="addModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Новая бронь</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            
-            <form id="bookingForm" onsubmit="saveBooking(event)">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🐕 Имя животного</label>
-                        <input type="text" id="petName" required placeholder="Например: Барсик">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>💰 Стоимость (руб.)</label>
-                        <input type="number" id="price" placeholder="Например: 5000" min="0" oninput="updatePricePerDay()">
-                        <div class="field-comment" id="pricePerDayComment"></div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>📅 Дата заезда</label>
-                        <input type="date" id="startDate" required onchange="updateDaysCount()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📅 Дата выезда</label>
-                        <input type="date" id="endDate" required onchange="updateDaysCount()">
-                        <div class="field-comment" id="daysCountComment"></div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>🎨 Цвет</label>
-                    <div class="color-picker-container">
-                        <input type="color" id="colorPicker" value="#667eea">
-                        <div class="color-presets" id="colorPresets"></div>
-                    </div>
-                </div>
-
-                <input type="hidden" id="editingId">
-                
-                <button type="submit" class="submit-btn" id="saveBtn">💾 Сохранить</button>
-                
-                <div class="booking-details" id="bookingDetails" style="display: none;">
-                    <button type="button" class="delete-btn" onclick="deleteBooking()" id="deleteBtn">🗑️ Удалить бронь</button>
-                </div>
-            </form>
-        </div>
+    <div class="weekdays">
+        <div class="weekday">Пн</div><div class="weekday">Вт</div><div class="weekday">Ср</div>
+        <div class="weekday">Чт</div><div class="weekday">Пт</div><div class="weekday">Сб</div><div class="weekday">Вс</div>
     </div>
+    <div class="calendar" id="calendarGrid"></div>
 
-    <script>
-        // Состояние приложения
-        let currentDate = new Date();
-        let bookings = [];
-        let showArchive = false;
+    <div class="legend">
+        <h3 id="legendTitle">📋 Активные брони <button id="archiveBtn" class="nav-btn" style="padding: 2px 8px; font-size: 10px; margin-left:10px;">Архив</button></h3>
+        <div class="legend-items" id="legendList"></div>
+    </div>
+</div>
 
-        // ВАШ API URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbw1v-AYjjwrPt7wXY55r_-swIGhRH9yUSFjHhZjpxIez-tpqkok9Y4NY0mb-LlvkYq9Nw/exec';
+<div class="modal" id="bookingModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">Бронь</h2>
+        <form id="bookingForm">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>Имя животного</label>
+                <input type="text" id="petName" required>
+            </div>
+            <div class="form-group">
+                <label>Стоимость</label>
+                <input type="number" id="price" value="0" oninput="updatePriceHint()">
+                <div class="field-comment" id="priceHint"></div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Заезд</label>
+                    <input type="date" id="startDate" required onchange="updatePriceHint()">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Выезд</label>
+                    <input type="date" id="endDate" required onchange="updatePriceHint()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Цвет</label>
+                <input type="color" id="colorPicker" value="#667eea">
+                <div class="color-presets" id="colorPresets"></div>
+            </div>
+            <button type="submit" class="submit-btn" id="saveBtn">Сохранить</button>
+            <button type="button" class="delete-btn" id="delBtn" onclick="handleDelete()" style="display:none">Удалить</button>
+        </form>
+    </div>
+</div>
 
-        const presetColors = [
-            '#667eea', '#764ba2', '#11998e', '#38ef7d',
-            '#ff416c', '#ff4b2b', '#f093fb', '#f5576c',
-            '#4facfe', '#00f2fe', '#43e97b', '#fa709a',
-            '#fee140', '#fa709a', '#a8edea', '#fed6e3'
-        ];
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyB0cTvVGO8BCSW54CAKzYCnQu6_pjXWfwr8i6_MvGuqGrm8kvRpvSnNpZNSO96BnBE5A/exec';
+    let bookings = [];
+    let currentDate = new Date();
+    let isArchiveMode = false;
 
-        const monthNames = [
-            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-        ];
+    const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
+    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
-            renderColorPresets();
-            loadBookings(); // Загружаем данные и рисуем календарь внутри
-        });
+    window.onload = () => {
+        initColorPresets();
+        renderCalendar(); 
+        loadData();
+    };
 
-        // Загрузка данных (ИСПРАВЛЕНО)
-        async function loadBookings() {
-            try {
-                // Добавляем ?t=... чтобы избежать кэширования в мобильных браузерах
-                const response = await fetch(API_URL + '?t=' + Date.now());
-                const data = await response.json();
-                if (data) {
-                    bookings = data;
-                    localStorage.setItem('petBookings', JSON.stringify(bookings));
-                }
-            } catch (e) {
-                console.error("Ошибка загрузки:", e);
-                const saved = localStorage.getItem('petBookings');
-                if (saved) bookings = JSON.parse(saved);
-            }
-            // Рисуем интерфейс в любом случае после попытки загрузки
-            renderCalendar();
-            renderLegend();
-        }
-
-        // Сохранение бронирования (ИСПРАВЛЕНО)
-        async function saveBooking(event) {
-            event.preventDefault();
-            const saveBtn = document.getElementById('saveBtn');
-            const originalBtnText = saveBtn.textContent;
-            
-            const petName = document.getElementById('petName').value.trim();
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const color = document.getElementById('colorPicker').value;
-            const price = document.getElementById('price').value || 0;
-            const editingId = document.getElementById('editingId').value;
-            
-            const bookingData = {
-                id: editingId || Date.now().toString(),
-                petName, startDate, endDate, color, price
-            };
-
-            // 1. Оптимистично обновляем UI
-            if (editingId) {
-                const index = bookings.findIndex(b => b.id === editingId);
-                if (index !== -1) bookings[index] = bookingData;
-            } else {
-                bookings.push(bookingData);
-            }
-            
-            renderCalendar();
-            renderLegend();
-            closeModal();
-
-            // 2. Отправляем в Google Таблицу
-            saveBtn.disabled = true;
-            saveBtn.textContent = '⌛ Сохранение...';
-            
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Позволяет избежать ошибок CORS при POST запросах к Apps Script
-                    body: JSON.stringify({ action: 'save', data: bookingData })
-                });
-                localStorage.setItem('petBookings', JSON.stringify(bookings));
-            } catch (e) {
-                console.error("Ошибка сохранения в базу:", e);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = originalBtnText;
-            }
-        }
-
-        // Удаление бронирования (ИСПРАВЛЕНО)
-        async function deleteBooking() {
-            const editingId = document.getElementById('editingId').value;
-            if (!editingId) return;
-            
-            if (confirm('Вы уверены, что хотите удалить эту бронь?')) {
-                const deleteBtn = document.getElementById('deleteBtn');
-                const originalBtnText = deleteBtn.textContent;
-                
-                const bookingData = { id: editingId };
-                
-                // 1. Обновляем UI
-                bookings = bookings.filter(b => b.id !== editingId);
+    async function loadData() {
+        try {
+            const response = await fetch(API_URL + '?t=' + Date.now());
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                bookings = data;
+                localStorage.setItem('bookings', JSON.stringify(bookings));
                 renderCalendar();
                 renderLegend();
-                closeModal();
-
-                // 2. В таблицу
-                deleteBtn.disabled = true;
-                deleteBtn.textContent = '⌛ Удаление...';
-
-                try {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify({ action: 'delete', data: bookingData })
-                    });
-                    localStorage.setItem('petBookings', JSON.stringify(bookings));
-                } catch (e) {
-                    console.error("Ошибка удаления:", e);
-                }
             }
+        } catch (e) {
+            console.error("Ошибка загрузки", e);
+            const saved = localStorage.getItem('bookings');
+            if (saved) bookings = JSON.parse(saved);
+            renderCalendar();
+            renderLegend();
+        }
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const label = document.getElementById('monthLabel');
+        grid.innerHTML = '';
+        
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        label.textContent = `${months[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        let startIdx = firstDay.getDay() - 1;
+        if (startIdx < 0) startIdx = 6;
+
+        const prevMonthLast = new Date(year, month, 0).getDate();
+        for (let i = startIdx - 1; i >= 0; i--) {
+            grid.appendChild(createDayCard(prevMonthLast - i, true, year, month - 1));
         }
 
-        // --- ОСТАЛЬНЫЕ ФУНКЦИИ (без изменений, но включены для работоспособности) ---
-
-        function parseDate(dateStr) {
-            const [year, month, day] = dateStr.split('-').map(Number);
-            return new Date(year, month - 1, day);
+        const today = new Date();
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            const isToday = today.getDate() === d && today.getMonth() === month && today.getFullYear() === year;
+            grid.appendChild(createDayCard(d, false, year, month, isToday));
         }
 
-        function updateDaysCount() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const commentDiv = document.getElementById('daysCountComment');
-            if (startDate && endDate) {
-                const start = parseDate(startDate);
-                const end = parseDate(endDate);
-                if (end >= start) {
-                    const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
-                    commentDiv.textContent = `📊 Количество дней: ${days}`;
-                    commentDiv.style.color = '#667eea';
-                } else {
-                    commentDiv.textContent = '⚠️ Дата выезда раньше даты заезда';
-                    commentDiv.style.color = '#ff416c';
-                }
-            }
-            updatePricePerDay();
+        const remain = 42 - grid.children.length;
+        for (let i = 1; i <= remain; i++) {
+            grid.appendChild(createDayCard(i, true, year, month + 1));
         }
+        updateEarnings();
+    }
 
-        function updatePricePerDay() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const price = document.getElementById('price').value;
-            const commentDiv = document.getElementById('pricePerDayComment');
-            if (startDate && endDate && price && price > 0) {
-                const start = parseDate(startDate);
-                const end = parseDate(endDate);
-                if (end >= start) {
-                    const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
-                    const pricePerDay = (parseFloat(price) / days).toFixed(2);
-                    commentDiv.textContent = `📊 Цена за день: ${pricePerDay} руб.`;
-                    commentDiv.style.color = '#11998e';
-                }
-            }
-        }
+    function createDayCard(day, isOther, year, month, isToday) {
+        const div = document.createElement('div');
+        div.className = 'day' + (isOther ? ' other-month' : '') + (isToday ? ' today' : '');
+        
+        let m = month; let y = year;
+        if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; }
+        
+        const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        div.innerHTML = `<div class="day-number">${day}</div><div class="bookings-container"></div>`;
+        
+        const container = div.querySelector('.bookings-container');
+        bookings.filter(b => dateStr >= b.startDate && dateStr <= b.endDate).forEach(b => {
+            const line = document.createElement('div');
+            line.className = 'booking-line';
+            line.style.backgroundColor = b.color || '#667eea';
+            line.textContent = b.petName;
+            line.onclick = (e) => { e.stopPropagation(); openEditModal(b); };
+            container.appendChild(line);
+        });
+        return div;
+    }
 
-        function renderCalendar() {
-            const calendar = document.getElementById('calendar');
-            const monthDisplay = document.getElementById('currentMonth');
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            monthDisplay.textContent = `${monthNames[month]} ${year}`;
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            let startDay = firstDay.getDay() - 1;
-            if (startDay < 0) startDay = 6;
-            calendar.innerHTML = '';
-            const prevMonthLastDay = new Date(year, month, 0).getDate();
-            for (let i = startDay - 1; i >= 0; i--) {
-                calendar.appendChild(createDayElement(prevMonthLastDay - i, true, year, month - 1));
-            }
-            const today = new Date();
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
-                calendar.appendChild(createDayElement(day, false, year, month, isToday));
-            }
-            const remainingCells = 42 - calendar.children.length;
-            for (let i = 1; i <= remainingCells; i++) {
-                calendar.appendChild(createDayElement(i, true, year, month + 1));
-            }
-            calculateMonthEarnings();
-        }
+    document.getElementById('bookingForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохранение...';
 
-        function createDayElement(day, isOtherMonth, year, month, isToday = false) {
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'day';
-            if (isOtherMonth) dayDiv.classList.add('other-month');
-            if (isToday) dayDiv.classList.add('today');
-            if (month < 0) { month = 11; year--; } else if (month > 11) { month = 0; year++; }
-            const dateStr = formatDate(year, month, day);
-            const monthNum = String(month + 1).padStart(2, '0');
-            dayDiv.innerHTML = `<div class="day-number">${day}.${monthNum}</div><div class="bookings-container"></div>`;
-            const container = dayDiv.querySelector('.bookings-container');
-            getBookingsForDate(dateStr).forEach(booking => {
-                const line = document.createElement('div');
-                line.className = 'booking-line';
-                line.style.backgroundColor = booking.color;
-                line.textContent = booking.petName;
-                line.onclick = (e) => { e.stopPropagation(); openEditModal(booking.id); };
-                const start = parseDate(booking.startDate);
-                const end = parseDate(booking.endDate);
-                const current = parseDate(dateStr);
-                if (start.getTime() === end.getTime()) line.classList.add('single');
-                else if (current.getTime() === start.getTime()) line.classList.add('start');
-                else if (current.getTime() === end.getTime()) line.classList.add('end');
-                else line.classList.add('middle');
-                container.appendChild(line);
+        const b = {
+            id: document.getElementById('editId').value || Date.now().toString(),
+            petName: document.getElementById('petName').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            price: document.getElementById('price').value,
+            color: document.getElementById('colorPicker').value
+        };
+
+        const idx = bookings.findIndex(x => x.id === b.id);
+        if (idx > -1) bookings[idx] = b; else bookings.push(b);
+
+        renderCalendar();
+        renderLegend();
+        closeModal();
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'save', data: b })
             });
-            return dayDiv;
-        }
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+        } catch (err) { console.error(err); }
+        
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+    };
 
-        function formatDate(year, month, day) {
-            return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        }
+    async function handleDelete() {
+        const id = document.getElementById('editId').value;
+        if (!confirm('Удалить бронь?')) return;
 
-        function getBookingsForDate(dateStr) {
-            const date = parseDate(dateStr);
-            return bookings.filter(booking => {
-                const start = parseDate(booking.startDate);
-                const end = parseDate(booking.endDate);
-                return date >= start && date <= end;
+        bookings = bookings.filter(x => x.id !== id);
+        renderCalendar();
+        renderLegend();
+        closeModal();
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'delete', data: { id } })
             });
-        }
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+        } catch (err) { console.error(err); }
+    }
 
-        function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
-        function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+    function updateEarnings() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const mStart = new Date(year, month, 1);
+        const mEnd = new Date(year, month + 1, 0);
+        let total = 0;
 
-        function calculateMonthEarnings() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const monthStart = new Date(year, month, 1);
-            const monthEnd = new Date(year, month + 1, 0);
-            let total = 0;
-            bookings.forEach(booking => {
-                const bookingStart = parseDate(booking.startDate);
-                const bookingEnd = parseDate(booking.endDate);
-                const price = parseFloat(booking.price) || 0;
-                if (bookingEnd >= monthStart && bookingStart <= monthEnd) {
-                    const totalDays = Math.round((bookingEnd - bookingStart) / (1000 * 60 * 60 * 24)) + 1;
-                    const actualStart = bookingStart < monthStart ? monthStart : bookingStart;
-                    const actualEnd = bookingEnd > monthEnd ? monthEnd : bookingEnd;
-                    const daysInMonth = Math.round((actualEnd - actualStart) / (1000 * 60 * 60 * 24)) + 1;
-                    if (totalDays > 0) total += (price / totalDays) * daysInMonth;
-                }
-            });
-            document.getElementById('monthEarnings').textContent = Math.round(total);
-        }
-
-        function renderColorPresets() {
-            const container = document.getElementById('colorPresets');
-            const colorPicker = document.getElementById('colorPicker');
-            presetColors.forEach(color => {
-                const preset = document.createElement('div');
-                preset.className = 'color-preset';
-                preset.style.backgroundColor = color;
-                preset.onclick = () => {
-                    colorPicker.value = color;
-                    document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('selected'));
-                    preset.classList.add('selected');
-                };
-                container.appendChild(preset);
-            });
-        }
-
-        function openModal() {
-            document.getElementById('addModal').classList.add('active');
-            document.getElementById('bookingForm').reset();
-            document.getElementById('editingId').value = '';
-            document.getElementById('bookingDetails').style.display = 'none';
-            document.getElementById('colorPicker').value = presetColors[0];
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').value = today;
-            document.getElementById('endDate').value = today;
-            updateDaysCount();
-        }
-
-        function openEditModal(id) {
-            const booking = bookings.find(b => b.id == id);
-            if (!booking) return;
-            document.getElementById('addModal').classList.add('active');
-            document.getElementById('modalTitle').textContent = 'Редактировать бронь';
-            document.getElementById('petName').value = booking.petName;
-            document.getElementById('startDate').value = booking.startDate;
-            document.getElementById('endDate').value = booking.endDate;
-            document.getElementById('colorPicker').value = booking.color;
-            document.getElementById('price').value = booking.price || '';
-            document.getElementById('editingId').value = booking.id;
-            document.getElementById('bookingDetails').style.display = 'block';
-            updateDaysCount();
-        }
-
-        function closeModal() { document.getElementById('addModal').classList.remove('active'); }
-
-        function renderLegend() {
-            const container = document.getElementById('legendItems');
-            const legendSection = document.getElementById('legend');
-            if (!document.getElementById('archiveToggle')) {
-                const toggleBtn = document.createElement('button');
-                toggleBtn.id = 'archiveToggle';
-                toggleBtn.className = 'nav-btn';
-                toggleBtn.style.marginLeft = '10px';
-                toggleBtn.textContent = '📦 Архив';
-                toggleBtn.onclick = toggleArchive;
-                legendSection.querySelector('h3').appendChild(toggleBtn);
+        bookings.forEach(b => {
+            const s = new Date(b.startDate);
+            const e = new Date(b.endDate);
+            if (e >= mStart && s <= mEnd) {
+                const dur = Math.round((e - s) / 86400000) + 1;
+                const inM = Math.round((Math.min(e, mEnd) - Math.max(s, mStart)) / 86400000) + 1;
+                total += (Number(b.price) / dur) * inM;
             }
-            container.innerHTML = '';
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            let filtered = bookings.filter(b => {
-                const end = parseDate(b.endDate);
-                return showArchive ? end < today : end >= today;
-            });
-            filtered.sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
-            if (filtered.length === 0) {
-                container.innerHTML = `<p style="color: #666;">Пусто</p>`;
-                return;
-            }
-            filtered.forEach(booking => {
-                const item = document.createElement('div');
-                item.className = 'legend-item';
-                item.onclick = () => openEditModal(booking.id);
-                item.innerHTML = `<div class="legend-color" style="background-color: ${booking.color}"></div>
-                    <div><div class="legend-text">${booking.petName}</div>
-                    <div class="legend-dates">${formatDisplayDate(booking.startDate)} - ${formatDisplayDate(booking.endDate)}</div>
-                    <div class="legend-dates">💰 ${booking.price || 0} р.</div></div>`;
-                container.appendChild(item);
-            });
-        }
+        });
+        document.getElementById('totalEarnings').textContent = Math.round(total);
+    }
 
-        function toggleArchive() { 
-            showArchive = !showArchive; 
-            document.getElementById('archiveToggle').textContent = showArchive ? '📋 Активные' : '📦 Архив';
-            renderLegend(); 
-        }
+    function renderLegend() {
+        const list = document.getElementById('legendList');
+        list.innerHTML = '';
+        const now = new Date();
+        now.setHours(0,0,0,0);
 
-        function formatDisplayDate(dateStr) {
-            const date = parseDate(dateStr);
-            return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-        }
+        let filtered = bookings.filter(b => {
+            const end = new Date(b.endDate);
+            return isArchiveMode ? end < now : end >= now;
+        });
 
-        document.getElementById('addModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-    </script>
+        filtered.sort((a,b) => a.startDate.localeCompare(b.startDate));
+        filtered.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            item.onclick = () => openEditModal(b);
+            item.innerHTML = `<div class="legend-color" style="background-color:${b.color}"></div>
+                <span>${b.petName} (${b.price}р)</span>`;
+            list.appendChild(item);
+        });
+    }
+
+    document.getElementById('archiveBtn').onclick = () => {
+        isArchiveMode = !isArchiveMode;
+        document.getElementById('archiveBtn').textContent = isArchiveMode ? 'Активные' : 'Архив';
+        document.getElementById('legendTitle').firstChild.textContent = isArchiveMode ? '📦 Архив ' : '📋 Активные брони ';
+        renderLegend();
+    };
+
+    function updatePriceHint() {
+        const s = new Date(document.getElementById('startDate').value);
+        const e = new Date(document.getElementById('endDate').value);
+        const p = document.getElementById('price').value;
+        const hint = document.getElementById('priceHint');
+        if (s && e && e >= s) {
+            const days = Math.round((e - s) / 86400000) + 1;
+            hint.textContent = `Дней: ${days} | ${(p/days).toFixed(1)} р/день`;
+        } else { hint.textContent = ''; }
+    }
+
+    function initColorPresets() {
+        const cont = document.getElementById('colorPresets');
+        colors.forEach(c => {
+            const d = document.createElement('div');
+            d.className = 'color-preset';
+            d.style.backgroundColor = c;
+            d.onclick = () => document.getElementById('colorPicker').value = c;
+            cont.appendChild(d);
+        });
+    }
+
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent = 'Новая бронь';
+        document.getElementById('bookingForm').reset();
+        document.getElementById('editId').value = '';
+        document.getElementById('delBtn').style.display = 'none';
+        document.getElementById('bookingModal').classList.add('active');
+        const d = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = d;
+        document.getElementById('endDate').value = d;
+    }
+
+    function openEditModal(b) {
+        document.getElementById('modalTitle').textContent = 'Правка брони';
+        document.getElementById('editId').value = b.id;
+        document.getElementById('petName').value = b.petName;
+        document.getElementById('startDate').value = b.startDate;
+        document.getElementById('endDate').value = b.endDate;
+        document.getElementById('price').value = b.price;
+        document.getElementById('colorPicker').value = b.color;
+        document.getElementById('delBtn').style.display = 'block';
+        document.getElementById('bookingModal').classList.add('active');
+        updatePriceHint();
+    }
+
+    function closeModal() { document.getElementById('bookingModal').classList.remove('active'); }
+    function changeMonth(v) { currentDate.setMonth(currentDate.getMonth() + v); renderCalendar(); }
+</script>
 </body>
 </html>
