@@ -3,357 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐾 Календарь передержки</title>
+    <title>Календарь передержки животных</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 15px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 20px; }
-        h1 { text-align: center; color: #333; margin-bottom: 20px; font-size: 1.8em; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .nav-buttons { display: flex; align-items: center; gap: 10px; }
-        .nav-btn { background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .nav-btn:hover { background: #5a6fd6; }
-        .current-month { font-size: 1.2em; font-weight: bold; color: #333; min-width: 150px; text-align: center; }
-        .earnings { font-size: 1.1em; font-weight: bold; color: #11998e; background: #f0f9f8; padding: 8px 12px; border-radius: 10px; border: 2px solid #11998e; }
-        .add-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px; }
-        .weekday { text-align: center; font-weight: bold; color: #666; padding: 8px; background: #f0f0f0; border-radius: 8px; font-size: 12px; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .day { min-height: 90px; border: 1px solid #e0e0e0; border-radius: 10px; padding: 5px; background: #fafafa; position: relative; transition: 0.2s; }
-        .day.other-month { background: #f5f5f5; color: #aaa; }
-        .day.today { border: 2px solid #667eea; background: #f0f4ff; }
-        .day-number { font-weight: bold; font-size: 12px; margin-bottom: 5px; }
-        .bookings-container { display: flex; flex-direction: column; gap: 2px; }
-        .booking-line { padding: 2px 5px; border-radius: 4px; font-size: 10px; color: black; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-        
-        /* Модалка */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; position: relative; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
-        .submit-btn { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .delete-btn { width: 100%; padding: 10px; background: #ff416c; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; }
-        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
-        .color-presets { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-        .color-preset { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ddd; }
-        
-        .legend { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 15px; }
-        .legend-items { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .legend-item { display: flex; align-items: center; gap: 5px; background: white; padding: 5px 10px; border-radius: 8px; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
-        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
-        .field-comment { font-size: 11px; color: #667eea; margin-top: 3px; }
-
-        @media (max-width: 600px) {
-            .day { min-height: 60px; }
-            .day-number { font-size: 10px; }
-            .booking-line { font-size: 9px; }
-            .current-month { min-width: 100px; font-size: 1em; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="container">
-    <h1>🐾 Передержка</h1>
-    <div class="header">
-        <div class="nav-buttons">
-            <button class="nav-btn" onclick="changeMonth(-1)">←</button>
-            <span class="current-month" id="monthLabel"></span>
-            <button class="nav-btn" onclick="changeMonth(1)">→</button>
+    <div class="container">
+        <h1>🐾 Календарь передержки животных</h1>
+        
+        <div class="header">
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="prevMonth()">← Назад</button>
+                <span class="current-month" id="currentMonth"></span>
+                <button class="nav-btn" onclick="nextMonth()">Вперёд →</button>
+            </div>
+            <div class="earnings">💰 <span id="monthEarnings">0</span> руб.</div>
+            <button class="add-btn" onclick="openModal()">+ Добавить бронь</button>
         </div>
-        <div class="earnings">💰 <span id="totalEarnings">0</span> р.</div>
-        <button class="add-btn" onclick="openAddModal()">+ Бронь</button>
+
+        <div class="weekdays">
+            <div class="weekday">Пн</div>
+            <div class="weekday">Вт</div>
+            <div class="weekday">Ср</div>
+            <div class="weekday">Чт</div>
+            <div class="weekday">Пт</div>
+            <div class="weekday">Сб</div>
+            <div class="weekday">Вс</div>
+        </div>
+
+        <div class="calendar" id="calendar"></div>
+
+        <div class="legend" id="legend">
+            <h3>📋 Активные брони</h3>
+            <div class="legend-items" id="legendItems"></div>
+        </div>
     </div>
 
-    <div class="weekdays">
-        <div class="weekday">Пн</div><div class="weekday">Вт</div><div class="weekday">Ср</div>
-        <div class="weekday">Чт</div><div class="weekday">Пт</div><div class="weekday">Сб</div><div class="weekday">Вс</div>
-    </div>
-    <div class="calendar" id="calendarGrid"></div>
-
-    <div class="legend">
-        <h3 id="legendTitle">📋 Активные брони <button id="archiveBtn" class="nav-btn" style="padding: 2px 8px; font-size: 10px; margin-left:10px;">Архив</button></h3>
-        <div class="legend-items" id="legendList"></div>
-    </div>
-</div>
-
-<div class="modal" id="bookingModal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 id="modalTitle">Бронь</h2>
-        <form id="bookingForm">
-            <input type="hidden" id="editId">
-            <div class="form-group">
-                <label>Имя животного</label>
-                <input type="text" id="petName" required>
+    <!-- Модальное окно -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Новая бронь</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="form-group">
-                <label>Стоимость</label>
-                <input type="number" id="price" value="0" oninput="updatePriceHint()">
-                <div class="field-comment" id="priceHint"></div>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1">
-                    <label>Заезд</label>
-                    <input type="date" id="startDate" required onchange="updatePriceHint()">
+            
+            <form id="bookingForm" onsubmit="saveBooking(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🐕 Имя животного</label>
+                        <input type="text" id="petName" required placeholder="Например: Барсик">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>💰 Стоимость (руб.)</label>
+                        <input type="number" id="price" placeholder="Например: 5000" min="0" oninput="updatePricePerDay()">
+                        <div class="field-comment" id="pricePerDayComment"></div>
+                    </div>
                 </div>
-                <div class="form-group" style="flex:1">
-                    <label>Выезд</label>
-                    <input type="date" id="endDate" required onchange="updatePriceHint()">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📅 Дата заезда</label>
+                        <input type="date" id="startDate" required onchange="updateDaysCount()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📅 Дата выезда</label>
+                        <input type="date" id="endDate" required onchange="updateDaysCount()">
+                        <div class="field-comment" id="daysCountComment"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label>Цвет</label>
-                <input type="color" id="colorPicker" value="#667eea">
-                <div class="color-presets" id="colorPresets"></div>
-            </div>
-            <button type="submit" class="submit-btn" id="saveBtn">Сохранить</button>
-            <button type="button" class="delete-btn" id="delBtn" onclick="handleDelete()" style="display:none">Удалить</button>
-        </form>
+                
+                <div class="form-group">
+                    <label>🎨 Цвет</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="colorPicker" value="#667eea">
+                        <div class="color-presets" id="colorPresets"></div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="editingId">
+                
+                <button type="submit" class="submit-btn">💾 Сохранить</button>
+                
+                <div class="booking-details" id="bookingDetails" style="display: none;">
+                    <button type="button" class="delete-btn" onclick="deleteBooking()">🗑️ Удалить бронь</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyB0cTvVGO8BCSW54CAKzYCnQu6_pjXWfwr8i6_MvGuqGrm8kvRpvSnNpZNSO96BnBE5A/exec';
-    let bookings = [];
-    let currentDate = new Date();
-    let isArchiveMode = false;
-
-    const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-
-    window.onload = () => {
-        initColorPresets();
-        renderCalendar(); 
-        loadData();
-    };
-
-    async function loadData() {
-        try {
-            const response = await fetch(API_URL + '?t=' + Date.now());
-            const data = await response.json();
-            if (Array.isArray(data)) {
-                bookings = data;
-                localStorage.setItem('bookings', JSON.stringify(bookings));
-                renderCalendar();
-                renderLegend();
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки", e);
-            const saved = localStorage.getItem('bookings');
-            if (saved) bookings = JSON.parse(saved);
-            renderCalendar();
-            renderLegend();
-        }
-    }
-
-    function renderCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        const label = document.getElementById('monthLabel');
-        grid.innerHTML = '';
-        
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        label.textContent = `${months[month]} ${year}`;
-
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        let startIdx = firstDay.getDay() - 1;
-        if (startIdx < 0) startIdx = 6;
-
-        const prevMonthLast = new Date(year, month, 0).getDate();
-        for (let i = startIdx - 1; i >= 0; i--) {
-            grid.appendChild(createDayCard(prevMonthLast - i, true, year, month - 1));
-        }
-
-        const today = new Date();
-        for (let d = 1; d <= lastDay.getDate(); d++) {
-            const isToday = today.getDate() === d && today.getMonth() === month && today.getFullYear() === year;
-            grid.appendChild(createDayCard(d, false, year, month, isToday));
-        }
-
-        const remain = 42 - grid.children.length;
-        for (let i = 1; i <= remain; i++) {
-            grid.appendChild(createDayCard(i, true, year, month + 1));
-        }
-        updateEarnings();
-    }
-
-    function createDayCard(day, isOther, year, month, isToday) {
-        const div = document.createElement('div');
-        div.className = 'day' + (isOther ? ' other-month' : '') + (isToday ? ' today' : '');
-        
-        let m = month; let y = year;
-        if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; }
-        
-        const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        div.innerHTML = `<div class="day-number">${day}</div><div class="bookings-container"></div>`;
-        
-        const container = div.querySelector('.bookings-container');
-        bookings.filter(b => dateStr >= b.startDate && dateStr <= b.endDate).forEach(b => {
-            const line = document.createElement('div');
-            line.className = 'booking-line';
-            line.style.backgroundColor = b.color || '#667eea';
-            line.textContent = b.petName;
-            line.onclick = (e) => { e.stopPropagation(); openEditModal(b); };
-            container.appendChild(line);
-        });
-        return div;
-    }
-
-    document.getElementById('bookingForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Сохранение...';
-
-        const b = {
-            id: document.getElementById('editId').value || Date.now().toString(),
-            petName: document.getElementById('petName').value,
-            startDate: document.getElementById('startDate').value,
-            endDate: document.getElementById('endDate').value,
-            price: document.getElementById('price').value,
-            color: document.getElementById('colorPicker').value
-        };
-
-        const idx = bookings.findIndex(x => x.id === b.id);
-        if (idx > -1) bookings[idx] = b; else bookings.push(b);
-
-        renderCalendar();
-        renderLegend();
-        closeModal();
-
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ action: 'save', data: b })
-            });
-            localStorage.setItem('bookings', JSON.stringify(bookings));
-        } catch (err) { console.error(err); }
-        
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Сохранить';
-    };
-
-    async function handleDelete() {
-        const id = document.getElementById('editId').value;
-        if (!confirm('Удалить бронь?')) return;
-
-        bookings = bookings.filter(x => x.id !== id);
-        renderCalendar();
-        renderLegend();
-        closeModal();
-
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ action: 'delete', data: { id } })
-            });
-            localStorage.setItem('bookings', JSON.stringify(bookings));
-        } catch (err) { console.error(err); }
-    }
-
-    function updateEarnings() {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const mStart = new Date(year, month, 1);
-        const mEnd = new Date(year, month + 1, 0);
-        let total = 0;
-
-        bookings.forEach(b => {
-            const s = new Date(b.startDate);
-            const e = new Date(b.endDate);
-            if (e >= mStart && s <= mEnd) {
-                const dur = Math.round((e - s) / 86400000) + 1;
-                const inM = Math.round((Math.min(e, mEnd) - Math.max(s, mStart)) / 86400000) + 1;
-                total += (Number(b.price) / dur) * inM;
-            }
-        });
-        document.getElementById('totalEarnings').textContent = Math.round(total);
-    }
-
-    function renderLegend() {
-        const list = document.getElementById('legendList');
-        list.innerHTML = '';
-        const now = new Date();
-        now.setHours(0,0,0,0);
-
-        let filtered = bookings.filter(b => {
-            const end = new Date(b.endDate);
-            return isArchiveMode ? end < now : end >= now;
-        });
-
-        filtered.sort((a,b) => a.startDate.localeCompare(b.startDate));
-        filtered.forEach(b => {
-            const item = document.createElement('div');
-            item.className = 'legend-item';
-            item.onclick = () => openEditModal(b);
-            item.innerHTML = `<div class="legend-color" style="background-color:${b.color}"></div>
-                <span>${b.petName} (${b.price}р)</span>`;
-            list.appendChild(item);
-        });
-    }
-
-    document.getElementById('archiveBtn').onclick = () => {
-        isArchiveMode = !isArchiveMode;
-        document.getElementById('archiveBtn').textContent = isArchiveMode ? 'Активные' : 'Архив';
-        document.getElementById('legendTitle').firstChild.textContent = isArchiveMode ? '📦 Архив ' : '📋 Активные брони ';
-        renderLegend();
-    };
-
-    function updatePriceHint() {
-        const s = new Date(document.getElementById('startDate').value);
-        const e = new Date(document.getElementById('endDate').value);
-        const p = document.getElementById('price').value;
-        const hint = document.getElementById('priceHint');
-        if (s && e && e >= s) {
-            const days = Math.round((e - s) / 86400000) + 1;
-            hint.textContent = `Дней: ${days} | ${(p/days).toFixed(1)} р/день`;
-        } else { hint.textContent = ''; }
-    }
-
-    function initColorPresets() {
-        const cont = document.getElementById('colorPresets');
-        colors.forEach(c => {
-            const d = document.createElement('div');
-            d.className = 'color-preset';
-            d.style.backgroundColor = c;
-            d.onclick = () => document.getElementById('colorPicker').value = c;
-            cont.appendChild(d);
-        });
-    }
-
-    function openAddModal() {
-        document.getElementById('modalTitle').textContent = 'Новая бронь';
-        document.getElementById('bookingForm').reset();
-        document.getElementById('editId').value = '';
-        document.getElementById('delBtn').style.display = 'none';
-        document.getElementById('bookingModal').classList.add('active');
-        const d = new Date().toISOString().split('T')[0];
-        document.getElementById('startDate').value = d;
-        document.getElementById('endDate').value = d;
-    }
-
-    function openEditModal(b) {
-        document.getElementById('modalTitle').textContent = 'Правка брони';
-        document.getElementById('editId').value = b.id;
-        document.getElementById('petName').value = b.petName;
-        document.getElementById('startDate').value = b.startDate;
-        document.getElementById('endDate').value = b.endDate;
-        document.getElementById('price').value = b.price;
-        document.getElementById('colorPicker').value = b.color;
-        document.getElementById('delBtn').style.display = 'block';
-        document.getElementById('bookingModal').classList.add('active');
-        updatePriceHint();
-    }
-
-    function closeModal() { document.getElementById('bookingModal').classList.remove('active'); }
-    function changeMonth(v) { currentDate.setMonth(currentDate.getMonth() + v); renderCalendar(); }
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
