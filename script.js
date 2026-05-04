@@ -249,11 +249,13 @@ function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderC
 function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
 
 function openModal() {
+    lockBodyScroll();
     document.getElementById('addModal').classList.add('active');
     document.getElementById('modalTitle').textContent = 'Новая бронь';
     document.getElementById('bookingForm').reset();
     document.getElementById('editingId').value = '';
     document.getElementById('bookingDetails').style.display = 'none';
+
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('startDate').value = today;
     document.getElementById('endDate').value = today;
@@ -263,6 +265,8 @@ function openModal() {
 function openEditModal(id) {
     const b = bookings.find(item => item.id.toString() === id.toString());
     if (!b) return;
+
+    lockBodyScroll();
     document.getElementById('addModal').classList.add('active');
     document.getElementById('modalTitle').textContent = 'Редактировать';
     document.getElementById('petName').value = b.petName;
@@ -275,7 +279,14 @@ function openEditModal(id) {
     updateDaysCount();
 }
 
-function closeModal() { document.getElementById('addModal').classList.remove('active'); }
+function closeModal() {
+    document.getElementById('addModal').classList.remove('active');
+
+    // 300 мс = длительность transition у модалки
+    unlockScrollTimer = setTimeout(() => {
+        unlockBodyScroll();
+    }, 300);
+}
 
 async function saveBooking(event) {
     event.preventDefault();
@@ -292,6 +303,27 @@ async function saveBooking(event) {
     await sendToSheets('save', data);
 }
 
+let bodyScrollY = 0;
+let unlockScrollTimer = null;
+
+function lockBodyScroll() {
+    clearTimeout(unlockScrollTimer);
+
+    if (document.body.classList.contains('modal-open')) return;
+
+    bodyScrollY = window.scrollY || window.pageYOffset;
+    document.body.classList.add('modal-open');
+    document.body.style.top = `-${bodyScrollY}px`;
+}
+
+function unlockBodyScroll() {
+    if (!document.body.classList.contains('modal-open')) return;
+
+    document.body.classList.remove('modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, bodyScrollY);
+}
+
 async function deleteBooking() {
     const id = document.getElementById('editingId').value;
     if (!id || !confirm('Удалить бронь?')) return;
@@ -302,21 +334,41 @@ async function deleteBooking() {
 function renderLegend() {
     const container = document.getElementById('legendItems');
     const header = document.querySelector('.legend h3');
-    if (!document.getElementById('archiveToggle')) {
+    const toggleBtn = document.getElementById('archiveToggle');
+
+    // Создаём кнопку только один раз
+    if (!toggleBtn) {
         const btn = document.createElement('button');
-        btn.id = 'archiveToggle'; btn.className = 'nav-btn'; btn.style.marginLeft = '15px';
-        btn.textContent = '📦 Архив';
-        btn.onclick = () => { showArchive = !showArchive; btn.textContent = showArchive ? '📋 Активные' : '📦 Архив'; renderLegend(); };
+        btn.id = 'archiveToggle';
+        btn.className = 'nav-btn';
+        btn.style.padding = '8px 14px';
+        btn.style.fontSize = '14px';
+        
+        btn.onclick = () => {
+            showArchive = !showArchive;
+            renderLegend();
+        };
         header.appendChild(btn);
     }
+
+    const currentToggleBtn = document.getElementById('archiveToggle');
+    currentToggleBtn.textContent = showArchive ? '📋 Активные' : '📦 Архив';
+
+    // Обновляем заголовок
+    header.childNodes[0].textContent = showArchive ? '📦 Архив' : '📋 Активные брони ';
+
     container.innerHTML = '';
     const todayStr = new Date().toISOString().split('T')[0];
-    const filtered = bookings.filter(b => showArchive ? b.endDate < todayStr : b.endDate >= todayStr)
-                             .sort((a,b) => a.startDate.localeCompare(b.startDate));
+    
+    const filtered = bookings.filter(b => 
+        showArchive ? b.endDate < todayStr : b.endDate >= todayStr
+    ).sort((a,b) => a.startDate.localeCompare(b.startDate));
+
     if (filtered.length === 0) {
-        container.innerHTML = '<p style="padding:10px; color:#666;">Ничего не найдено</p>';
+        container.innerHTML = '<p style="padding:10px; color:#666; grid-column: 1 / -1; text-align:center;">Ничего не найдено</p>';
         return;
     }
+
     filtered.forEach(b => {
         const item = document.createElement('div');
         item.className = 'legend-item';

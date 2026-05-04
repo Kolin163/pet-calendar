@@ -202,14 +202,20 @@ h1 {
     background: rgba(0,0,0,0);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
-    visibility: hidden;
-    transition: background 0.3s ease, visibility 0.3s ease;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, background 0.3s ease;
+    overflow-y: auto;
+    padding: 20px 0;
 }
 
 .modal.active {
-    visibility: visible;
+    opacity: 1;
+    pointer-events: all;
     background: rgba(0,0,0,0.5);
 }
 
@@ -217,12 +223,17 @@ h1 {
     background: white;
     padding: 30px;
     border-radius: 20px;
-    max-width: 700px;
+    max-height: calc(100vh - 40px);
+    max-width: 600px;
     width: 90%;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    transform: translateY(-30px);
-    opacity: 0;
+    position: relative;
+    margin: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateY(-20px);
     transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
 }
 
 .modal.active .modal-content {
@@ -239,6 +250,17 @@ h1 {
 
 .modal-header h2 {
     color: #333;
+}
+
+body.modal-open {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    left: 0;
+    right: 0;
+    /* Сохраняем фон */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
 }
 
 .close-btn {
@@ -376,8 +398,19 @@ h1 {
 }
 
 .legend h3 {
+    display: flex;
+    justify-content: space-between; /* Разносит текст и кнопку по краям */
+    align-items: center;            /* Выравнивает их по вертикали */
     margin-bottom: 15px;
     color: #333;
+    gap: 10px;                      /* Расстояние между текстом и кнопкой */
+    flex-wrap: nowrap;              /* Запрещаем перенос на новую строку */
+}
+
+#archiveToggle {
+    white-space: nowrap;            /* Чтобы текст кнопки не разрывался */
+    flex-shrink: 0;                 /* Чтобы кнопка не сжималась */
+    margin-left: auto;              /* Прижимает кнопку вправо */
 }
 
 .legend-items {
@@ -471,44 +504,165 @@ h1 {
     to { transform: rotate(360deg); }
 }
 
+/* ============================================================
+   АДАПТИВ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА (до 768px)
+   ============================================================ */
 @media (max-width: 768px) {
-    .day {
-        min-height: 70px;
-        padding: 5px;
+    body {
+        padding: 10px;
     }
 
-    .day-number {
-        font-size: 12px;
+    .container {
+        padding: 15px;
+        border-radius: 16px;
     }
 
-    .booking-line {
-        font-size: 9px;
-        padding: 2px 4px;
+    h1 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
     }
 
+    /* --- Шапка: Переключатели, Деньги, Кнопка --- */
+    .header {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .nav-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-btn {
+        padding: 10px 15px;
+        min-width: 50px;
+    }
+
+    .current-month {
+        font-size: 1.2em;
+        min-width: 130px;
+    }
+
+    .earnings, .add-btn {
+        width: 100%;
+        max-width: 320px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* --- Календарь --- */
     .weekday {
         font-size: 12px;
         padding: 5px;
     }
 
-    .header {
-        flex-direction: column;
+    .day {
+        min-height: 70px; /* Уменьшаем высоту ячеек */
+        padding: 4px;
     }
 
-    .form-row {
-        grid-template-columns: 1fr;
+    .day-number {
+        font-size: 11px;
+    }
+
+    .booking-line {
+        font-size: 9px;
+        padding: 1px 3px;
+        height: 16px;
+    }
+
+    /* --- Легенда (Активные брони) --- */
+    .legend {
+        padding: 15px;
+        margin-top: 20px;
     }
 
     .legend h3 {
-        margin-bottom: 15px;
-        color: #333;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        font-size: 1.1em;
     }
 
     #archiveToggle {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .legend-items {
+        display: grid;
+        grid-template-columns: 1fr; /* По одному в ряд */
+        gap: 8px;
+    }
+
+    .legend-item {
+        width: 100%;
+        padding: 10px;
+    }
+
+    /* --- МОДАЛЬНОЕ ОКНО (Попап) --- */
+    .modal-content {
+        width: 95%;
+        padding: 18px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .modal-header h2 {
+        font-size: 1.2em;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr; /* Поля формы в один столбец */
+        gap: 0;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
         font-size: 14px;
-        padding: 8px 15px;
+        margin-bottom: 4px;
+    }
+
+    .form-group input {
+        padding: 12px; /* Удобный размер для нажатия */
+        font-size: 16px; /* Предотвращает авто-зум в iOS Safari */
+        border-radius: 8px;
+    }
+
+    .color-picker-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .color-presets {
+        gap: 5px;
+    }
+
+    .color-preset {
+        width: 30px;
+        height: 30px;
+    }
+
+    .submit-btn {
+        padding: 14px;
+        font-size: 16px;
+    }
+
+    .delete-btn {
+        margin-top: 15px;
+        padding: 10px;
+    }
+}
+
+/* Для совсем маленьких экранов (до 380px) */
+@media (max-width: 380px) {
+    .current-month {
+        font-size: 1.1em;
+    }
+    
+    .day {
+        min-height: 60px;
     }
 }
