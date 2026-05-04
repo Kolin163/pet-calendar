@@ -16,36 +16,74 @@ const monthNames = [
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
 ];
 
+// ====================== GLOBAL LOADER ======================
+let loadingScreen = null;
+
+function showLoading() {
+    if (!loadingScreen) return;
+    loadingScreen.classList.add('active');
+    
+    const btn = document.querySelector('.add-btn');
+    if (btn) {
+        btn.textContent = '⏳ Ждите...';
+        btn.disabled = true;
+    }
+}
+
+function hideLoading() {
+    if (!loadingScreen) return;
+    loadingScreen.classList.remove('active');
+    
+    const btn = document.querySelector('.add-btn');
+    if (btn) {
+        btn.textContent = '+ Добавить бронь';
+        btn.disabled = false;
+    }
+}
 document.addEventListener('DOMContentLoaded', function() {
+    loadingScreen = document.getElementById('loadingScreen');  // ← теперь здесь
+    
     fetchBookings();
     renderColorPresets();
+    
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
     });
 });
 
 async function fetchBookings() {
-    showLoading(true);
+    showLoading();
+    
     try {
         const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
+        
         bookings = data.map(b => ({
             ...b,
             startDate: b.startDate ? b.startDate.split('T')[0] : "",
             endDate: b.endDate ? b.endDate.split('T')[0] : "",
             price: parseFloat(b.price) || 0
         }));
+
         renderCalendar();
         renderLegend();
+        
     } catch (error) {
-        console.error("Ошибка загрузки:", error);
+        console.error("Ошибка загрузки данных:", error);
+        alert("Не удалось загрузить данные из Google. Проверьте подключение к интернету.");
     } finally {
-        showLoading(false);
+        hideLoading();        // ← Это должно сработать в любом случае
+        console.log("Лоадер скрыт (finally)");   // для отладки
     }
 }
 
 async function sendToSheets(action, bookingData) {
-    showLoading(true);
+    showLoading();                    // ← включаем оба лоадера
     try {
         await fetch(API_URL, {
             method: 'POST',
@@ -54,18 +92,16 @@ async function sendToSheets(action, bookingData) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action, data: bookingData })
         });
-        setTimeout(fetchBookings, 800); 
+        
+        // Небольшая задержка перед обновлением данных
+        setTimeout(() => {
+            fetchBookings();
+        }, 700);
+        
     } catch (error) {
         console.error("Ошибка API:", error);
-        showLoading(false);
-    }
-}
-
-function showLoading(isLoading) {
-    const btn = document.querySelector('.add-btn');
-    if(btn) {
-        btn.textContent = isLoading ? '⏳ Ждите...' : '+ Добавить бронь';
-        btn.disabled = isLoading;
+        alert("Ошибка при сохранении данных");
+        hideLoading();
     }
 }
 
