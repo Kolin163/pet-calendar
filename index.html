@@ -1,106 +1,46 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Календарь передержки животных</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🐾 Календарь передержки животных</title>
+  <meta name="description" content="Календарь бронирования передержки животных: учёт гостей, цены и выручка по месяцам." />
+  <meta name="theme-color" content="#6366f1" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" href="apple-touch-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- React 19 as native ES modules (pinned versions, no build step needed) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.1.0",
+        "react/jsx-runtime": "https://esm.sh/react@19.1.0/jsx-runtime",
+        "react-dom/client": "https://esm.sh/react-dom@19.1.0/client"
+      }
+    }
+  </script>
 </head>
 <body>
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <p>Подождите, данные загружаются...</p>
-        </div>
+  <noscript>
+    <p style="text-align:center;padding:40px;font-family:sans-serif">
+      Для работы календаря нужен включённый JavaScript.
+    </p>
+  </noscript>
+
+  <div id="root">
+    <!-- Instant splash shown until React boots -->
+    <div class="boot-splash">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Подождите, данные загружаются…</p>
     </div>
-    <div class="container">
-        <h1>🐾 Календарь передержки животных</h1>
-        
-        <div class="header">
-            <div class="nav-buttons">
-                <button class="nav-btn" onclick="prevMonth()">‹</button>
-                <span class="current-month" id="currentMonth"></span>
-                <button class="nav-btn" onclick="nextMonth()">›</button>
-            </div>
-            <div class="earnings">💰 <span id="monthEarnings">0</span> руб.</div>
-            <button class="add-btn" onclick="openModal()">+ Добавить бронь</button>
-        </div>
+  </div>
 
-        <div class="weekdays">
-            <div class="weekday">Пн</div>
-            <div class="weekday">Вт</div>
-            <div class="weekday">Ср</div>
-            <div class="weekday">Чт</div>
-            <div class="weekday">Пт</div>
-            <div class="weekday">Сб</div>
-            <div class="weekday">Вс</div>
-        </div>
-
-        <div class="calendar" id="calendar"></div>
-
-        <div class="legend" id="legend">
-            <h3>📋 Активные брони</h3>
-            <div class="legend-items" id="legendItems"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно -->
-    <div class="modal" id="addModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Новая бронь</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            
-            <form id="bookingForm" onsubmit="saveBooking(event)">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🐕 Имя животного</label>
-                        <input type="text" id="petName" required placeholder="Например: Барсик">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>💰 Стоимость (руб.)</label>
-                        <input type="number" id="price" placeholder="Например: 5000" min="0" oninput="updatePricePerDay()">
-                        <div class="field-comment" id="pricePerDayComment"></div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>📅 Дата заезда</label>
-                        <input type="date" id="startDate" required onchange="updateDaysCount()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📅 Дата выезда</label>
-                        <input type="date" id="endDate" required onchange="updateDaysCount()">
-                        <div class="field-comment" id="daysCountComment"></div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>🎨 Цвет</label>
-                    <div class="color-picker-container">
-                        <input type="color" id="colorPicker" value="#667eea">
-                        <div class="color-presets" id="colorPresets"></div>
-                    </div>
-                </div>
-
-                <input type="hidden" id="editingId">
-                
-                <button type="submit" class="submit-btn">💾 Сохранить</button>
-                
-                <div class="booking-details" id="bookingDetails" style="display: none;">
-                    <button type="button" class="delete-btn" onclick="deleteBooking()">🗑️ Удалить бронь</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+  <script type="module" src="script.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a255aa816c7d0b0c',t:'MTc4NTc2MzcxMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
